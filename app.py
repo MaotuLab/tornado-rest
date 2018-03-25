@@ -11,6 +11,10 @@ app.config['MONGO_URI'] = 'mongodb://127.0.0.1:27017/rest'
 
 mongo = PyMongo(app)
 
+@app.route('/')
+def index():
+    return 'Hello World!'
+
 @app.route('/login', methods=['GET'])
 def get_all_users():
   star = mongo.db.userInfo.find()
