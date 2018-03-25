@@ -11,51 +11,57 @@ app.config['MONGO_URI'] = 'mongodb://127.0.0.1:27017/rest'
 
 mongo = PyMongo(app)
 
+
 @app.route('/')
 def index():
     return 'Hello World!'
 
-@app.route('/login', methods=['GET'])
-def get_all_users():
-  star = mongo.db.userInfo.find()
+
+
+@app.route('/users', methods=['GET'])
+def users_query():
+  Users = mongo.db.users
+  models = Users.find()
   output = []
-  for s in star:
-    output.append({'name' : s['name'], 'pwd' : s['pwd']})
+  print(models)
+  for item in models:
+    output.append({'name' : item['name'], 'pwd' : item['pwd']})
   return jsonify({'result' : output})
 
 
-@app.route('/register', methods=['POST'])
-def add_user():
-  star = mongo.db.userInfo
-  name = request.json['name']
-  pwd = request.json['pwd']
-  star_id = star.insert({'name': name, 'pwd': pwd})
-  new_star = star.find_one({'_id': star_id })
-  output = {'name' : new_star['name'], 'pwd' : new_star['pwd']}
-  return jsonify({'result' : output})
+@app.route('/users', methods=['POST'])
+def users_add():
+  Users = mongo.db.users
+  user =request.json
 
-@app.route('/modify/<string:name>', methods=['PUT'])
-def update_user(name):
-    user = mongo.db.userInfo.find({"name":name})
-    output = []
-    for s in user:
-      output.append({'name': s['name'], 'pwd': s['pwd']})
-    if len(output) == 0:
-      abort(404)
-    mongo.db.userInfo.update({"name":name},{'$set':{"name":"LZ111"}})
-    return jsonify({'result': output})
+  _id = Users.insert(user)
 
-@app.route('/delete/<string:name>', methods=['DELETE'])
-def delete_user(name):
-    user = mongo.db.userInfo.find({"name": name})
-    output = []
-    for s in user:
-      output.append({'name': s['name'], 'pwd': s['pwd']})
-    if len(output) == 0:
-      abort(404)
-    mongo.db.userInfo.remove({'name': name})
-    return jsonify({'result': True})
+  result = Users.find_one({'_id': _id })
+  print(result)
+  return jsonify({'result' : 'ok'})
 
+# @app.route('/modify/<string:name>', methods=['PUT'])
+# def update_user(name):
+#     user = mongo.db.userInfo.find({"name":name})
+#     output = []
+#     for s in user:
+#       output.append({'name': s['name'], 'pwd': s['pwd']})
+#     if len(output) == 0:
+#       abort(404)
+#     mongo.db.userInfo.update({"name":name},{'$set':{"name":"LZ111"}})
+#     return jsonify({'result': output})
+#
+# @app.route('/delete/<string:name>', methods=['DELETE'])
+# def delete_user(name):
+#     user = mongo.db.userInfo.find({"name": name})
+#     output = []
+#     for s in user:
+#       output.append({'name': s['name'], 'pwd': s['pwd']})
+#     if len(output) == 0:
+#       abort(404)
+#     mongo.db.userInfo.remove({'name': name})
+#     return jsonify({'result': True})
+#
 
 
 if __name__ == '__main__':
